@@ -164,3 +164,10 @@ self.addEventListener('message', (event) => {
 	});
 });
 
+// zvukolet-pwa-patch: make the app work offline after a single online visit.
+self.addEventListener('install', () => { self.skipWaiting(); });
+self.addEventListener('activate', (event) => {
+	event.waitUntil(self.clients.claim().then(() => caches.open(CACHE_NAME).then((cache) =>
+		Promise.all(CACHEABLE_FILES.map((name) => cache.match(name).then((hit) => hit ? null : cache.add(name).catch(() => null))))
+	)));
+});
