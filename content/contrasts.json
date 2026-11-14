@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "contrasts": [
+    {
+      "id": "sh_s",
+      "title": "Ш и С",
+      "sound_a": "Ш",
+      "sound_b": "С",
+      "description": "Различаем шипящий Ш и свистящий С.",
+      "pairs_file": "res://content/pairs/sh_s.json"
+    }
+  ]
+}

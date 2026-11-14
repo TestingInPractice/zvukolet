@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "id": "builtin_sh_s",
+  "name": "Ш и С: базовый набор",
+  "contrast_id": "sh_s",
+  "builtin": true,
+  "pair_ids": [
+    "sh_s_01",
+    "sh_s_02",
+    "sh_s_03",
+    "sh_s_04",
+    "sh_s_05",
+    "sh_s_06",
+    "sh_s_07",
+    "sh_s_08",
+    "sh_s_09",
+    "sh_s_10"
+  ]
+}

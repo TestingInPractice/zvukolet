@@ -1,0 +1,50 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="Звуколёт"
+config/description="Офлайн-тренажёр минимальных пар для домашней практики с детьми 3-6 лет"
+config/version="0.1.0"
+run/main_scene="res://scenes/main.tscn"
+config/features=PackedStringArray("4.6")
+config/icon="res://icon.png"
+config/dev_mode=true
+
+[autoload]
+
+AppLogger="*res://scripts/core/app_logger.gd"
+ContentRepository="*res://scripts/core/content_repository.gd"
+CustomSetsStore="*res://scripts/core/custom_sets_store.gd"
+SetRepository="*res://scripts/core/set_repository.gd"
+Navigation="*res://scripts/core/navigation.gd"
+AudioManager="*res://scripts/core/audio_manager.gd"
+SaveManager="*res://scripts/core/save_manager.gd"
+
+[display]
+
+window/size/viewport_width=1080
+window/size/viewport_height=2340
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+window/size/initial_width=540
+window/size/initial_height=1170
+window/handheld/orientation=1
+
+[gui]
+
+theme/custom="res://assets/ui/theme.tres"
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+textures/vram_compression/import_etc2_astc=true
+environment/defaults/default_clear_color=Color(0.960784, 0.941176, 0.909804, 1)
