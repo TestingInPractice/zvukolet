@@ -16,6 +16,18 @@ godot --headless --path . --export-release "Web" build/web/index.html
 `index.audio.position.worklet.js`, `index.offline.html`, иконки. Каталог `build/`
 в `.gitignore`.
 
+После экспорта патчим service worker, чтобы офлайн наступал после одного
+онлайн-визита:
+
+```bash
+python3 tools/patch_pwa_service_worker.py build/web/index.service.worker.js
+```
+
+Godot-SW не вызывает `clients.claim()` и кэширует `index.wasm` / `index.pck`
+только через fetch, поэтому без патча офлайн требует двух онлайн-загрузок. Патч
+дописывает слушатели `install` (`skipWaiting`) и `activate` (`clients.claim` +
+backfill больших файлов) и идемпотентен (маркер `zvukolet-pwa-patch`).
+
 Параметры пресета `Web` в `export_presets.cfg`:
 
 - threads выключены (`variant/thread_support=false`): GitHub Pages не отдаёт

@@ -33,6 +33,8 @@ evidence не попадают.
 | #261 | Экран `О проекте`, privacy, дисклеймер | `docs/qa/2026-11-14-about-screen.md` |
 | #257 | Офлайн и отсутствие сетевых запросов | `docs/qa/offline-check.md` |
 | #260 | Релизная сборка (proof-of-concept) | `docs/qa/2026-11-14-release-apk.md` |
+| #259 | Web-сборка и PWA | `docs/qa/2026-11-14-web-pwa.md` |
+| #259 | Деплой PWA на GitHub Pages | `docs/qa/2026-11-14-web-pwa-deploy.md` |
 
 ## План QA
 
@@ -43,7 +45,12 @@ evidence не попадают.
 - Прогон на реальном Android-устройстве: #256.
 - Тест с 3-5 родителями: #263.
 - Релизный APK с постоянным keystore владельца: #260.
-- Публикация в RuStore: #262.
+- Публикация в RuStore: #262 (сейчас курс на PWA, публикация в RuStore отложена).
+
+## Где смотреть живой результат
+
+- PWA (GitHub Pages): `https://testinginpractice.github.io/zvukolet/`.
+- Evidence деплоя: `docs/qa/2026-11-14-web-pwa-deploy.md`.
 
 ## Изоляция и секреты
 

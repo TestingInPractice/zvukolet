@@ -94,6 +94,8 @@ Vikunja:
 - Индекс QA evidence: `docs/qa/README.md`.
 - Headless-тесты: `tests/test_runner.gd` и `.tscn`, 103 проверки, выход 0.
 - QA evidence: `docs/qa/2026-11-14-content-and-constructor.md`, `docs/qa/2026-11-14-navigation-and-screens.md`, `docs/qa/2026-11-14-audio-manager.md`, `docs/qa/2026-11-14-save-manager.md`, `docs/qa/2026-11-14-game-core.md`, `docs/qa/2026-11-14-parent-screen.md`, `docs/qa/2026-11-14-ui-theme.md`, `docs/qa/2026-11-14-sfx.md`, `docs/qa/2026-11-14-android-export.md`, `docs/qa/2026-11-14-about-screen.md`, `docs/qa/2026-11-14-release-apk.md`, `docs/qa/offline-check.md`.
+- Web-экспорт и PWA: пресет `Web` в `export_presets.cfg` (threads выключены, PWA включён, portrait, скрипт возобновления `AudioContext`), иконки `assets/icons/icon-{144,180,512}.png`, генератор `tools/generate_pwa_icons.py`, патч service worker `tools/patch_pwa_service_worker.py` (офлайн после одного онлайн-визита), QA `docs/qa/2026-11-14-web-pwa.md`, процесс `docs/release/pwa-deploy.md`.
+- PWA опубликовано на GitHub Pages: `https://testinginpractice.github.io/zvukolet/` (ветка `gh-pages`, источник Pages `gh-pages` / `/`, evidence `docs/qa/2026-11-14-web-pwa-deploy.md`). Проверено: приложение стартует, манифест и service worker активны, офлайн-перезагрузка после одного визита работает.
 
 Не сделано (внешние или зависящие от человека шаги):
 - SLP-ревью пар `ш-с` (пакет готов, нужна подпись логопеда; пары помечены `candidate`).
@@ -103,20 +105,24 @@ Vikunja:
 - Тест с 3-5 родителями (#263).
 
 Git:
-- Проект новый, много файлов untracked.
+- Исходники закоммичены и запушены в `main` (коммит `976b462`).
+- Ветка `gh-pages` содержит web-сборку (первый деплой `18b2742`, патч service worker `992cefb`).
 - Перед началом работы проверить `git status`.
 - Не коммитить и не деплоить без явного запроса.
 
 ## Следующий шаг
+
+Курс: PWA опубликовано на GitHub Pages (`https://testinginpractice.github.io/zvukolet/`),
+офлайн работает после одного онлайн-визита. Android-путь (релизный APK, RuStore) отложен.
 
 Все задачи, выполнимые без человека и без устройства, закрыты. Осталось:
 
 1. `#242` Финальные иллюстрации для 10 пар (нужен художник или генерация и ревью).
 2. `#233` Реальные записи аудио для пар (нужна запись и обработка).
 3. `#234` SLP-ревью: пакет `docs/content/slp-review.md` готов, нужна подпись логопеда.
-4. `#256` и `#258` QA на реальном Android-устройстве и evidence по устройству.
-5. `#260` Релизный APK с постоянным keystore владельца (процесс: `docs/release/release-build.md`).
-6. `#262` Публикация карточки RuStore (черновик: `docs/release/rustore-card.md`).
+4. `#256` и `#258` QA на реальном устройстве и evidence по устройству.
+5. `#260` Релизный APK с постоянным keystore владельца (процесс: `docs/release/release-build.md`) - отложено.
+6. `#262` Публикация карточки RuStore (черновик: `docs/release/rustore-card.md`) - отложено в пользу PWA.
 7. `#263` Тест с 3-5 родителями.
 
 Закрыты: `#226`, `#228`, `#229`, `#232`, `#235`, `#236`-`#240`, `#243`-`#250`,
@@ -167,7 +173,7 @@ Git:
 
 Затем проверь git status.
 
-Следующий шаг: задачи #242 (финальные иллюстрации), #234 (SLP-ревью, пакет готов, нужна подпись), #255-#258 (QA MVP), #259-#262 (релизный пакет). UI-тема, звуки интерфейса и Android-экспорт с debug APK готовы, headless-тесты проходят, 96 проверок.
+Следующий шаг: задачи #242 (финальные иллюстрации), #233 (реальное аудио), #234 (SLP-ревью, пакет готов, нужна подпись), #256/#258 (QA на устройстве), #263 (тест с родителями). PWA опубликовано на GitHub Pages (https://testinginpractice.github.io/zvukolet/), офлайн работает после одного визита; Android-путь (релизный APK, RuStore) отложен. UI-тема, звуки интерфейса и Android-экспорт с debug APK готовы, headless-тесты проходят, 103 проверки.
 
 Не коммить и не деплой без явного запроса. Не используй em dash, en dash и emoji.
 ```
