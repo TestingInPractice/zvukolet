@@ -59,11 +59,12 @@ func has_set(set_id: String) -> bool:
 	return _find_index(set_id) >= 0
 
 
-func create_set(name: String, contrast_id: String) -> Dictionary:
+func create_set(name: String, contrast_id: String, mode_id := "") -> Dictionary:
 	var record := {
 		"id": _generate_id(),
 		"name": _clean_name(name),
 		"contrast_id": contrast_id,
+		"mode_id": mode_id,
 		"pairs": {},
 	}
 	_sets.append(record)
@@ -185,6 +186,11 @@ func pair_count(set_id: String) -> int:
 	return get_pair_ids(set_id).size()
 
 
+## Режим, выбранный при создании набора. Пусто, если набор старый.
+func get_mode_id(set_id: String) -> String:
+	return str(get_set(set_id).get("mode_id", ""))
+
+
 func set_dir(set_id: String) -> String:
 	return sets_dir + "/" + set_id + "/"
 
@@ -196,11 +202,58 @@ func pair_file_name(pair_id: String, side: String, extension: String) -> String:
 	return "%s_%s.%s" % [pair_id, side, ext]
 
 
+## Имя файла картинки пары: <pair>_<side>.webp. Один формат на все картинки.
+func image_file_name(pair_id: String, side: String) -> String:
+	return pair_file_name(pair_id, side, "webp")
+
+
+## Имя файла озвучки пары: <pair>_<side>.<ext>.
+func audio_file_name(pair_id: String, side: String, extension: String) -> String:
+	return pair_file_name(pair_id, side, extension)
+
+
+## Расширение файла по MIME-типу. Пусто, если тип не поддержан.
+## Список обязан совпадать с WebFilePicker: каждый принятый там тип получает
+## здесь непустое расширение, иначе файл сохранится без имени формата.
+func extension_for_mime(mime: String) -> String:
+	var clean := mime.strip_edges().to_lower()
+	var semicolon := clean.find(";")
+	if semicolon >= 0:
+		clean = clean.substr(0, semicolon)
+	match clean:
+		"image/png":
+			return "png"
+		"image/jpeg":
+			return "jpg"
+		"image/webp":
+			return "webp"
+		"audio/wav", "audio/x-wav", "audio/wave":
+			return "wav"
+		"audio/ogg", "audio/vorbis", "audio/oga":
+			return "ogg"
+		"audio/mpeg", "audio/mp3":
+			return "mp3"
+		"audio/mp4", "audio/m4a", "audio/x-m4a", "audio/aac":
+			return "m4a"
+		_:
+			return ""
+
+
+## Удаляет файл медиа набора, если он лежит в каталоге набора. Чужой путь
+## (res:// или вне каталога наборов) не трогаем.
+func remove_media_file(path: String) -> void:
+	if path.is_empty() or not path.begins_with(sets_dir + "/"):
+		return
+	if FileAccess.file_exists(path):
+		DirAccess.remove_absolute(ProjectSettings.globalize_path(path))
+
+
 func _normalize_record(source: Dictionary) -> Dictionary:
 	var record := {
 		"id": str(source.get("id", "")),
 		"name": _clean_name(str(source.get("name", ""))),
 		"contrast_id": str(source.get("contrast_id", "")),
+		"mode_id": str(source.get("mode_id", "")),
 		"pairs": {},
 	}
 	var raw_pairs: Variant = source.get("pairs", {})

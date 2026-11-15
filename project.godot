@@ -25,6 +25,7 @@ ContentRepository="*res://scripts/core/content_repository.gd"
 CustomSetsStore="*res://scripts/core/custom_sets_store.gd"
 SetRepository="*res://scripts/core/set_repository.gd"
 Navigation="*res://scripts/core/navigation.gd"
+VoiceRecord="*res://scripts/core/voice_record.gd"
 AudioManager="*res://scripts/core/audio_manager.gd"
 SaveManager="*res://scripts/core/save_manager.gd"
 

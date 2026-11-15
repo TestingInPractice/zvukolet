@@ -17,6 +17,45 @@ const ICON_MODE := {
 }
 const ICON_BACK := "res://assets/ui/icons/back_arrow.svg"
 
+const CARD_FILL := Color(1, 1, 1, 0.9)
+const CARD_BORDER := Color(0.2901961, 0.627451, 0.5686275, 1)
+const CARD_BORDER_WIDTH := 6
+const CARD_RADIUS := 28
+const CARD_PADDING := 18
+const IMAGE_CARD_SIZE := 440
+
+
+## Стиль карточки-контейнера: цветная рамка и приглушённая заливка,
+## чтобы картинка предмета читалась, а контейнер не отвлекал.
+static func image_card_box(fill: Color = CARD_FILL, border: Color = CARD_BORDER) -> StyleBoxFlat:
+	var box := StyleBoxFlat.new()
+	box.bg_color = fill
+	box.set_border_width_all(CARD_BORDER_WIDTH)
+	box.border_color = border
+	box.set_corner_radius_all(CARD_RADIUS)
+	box.set_content_margin_all(CARD_PADDING)
+	return box
+
+
+## Оформляет кнопку-картинку как контейнер с цветной рамкой.
+static func image_card_button(button: Button) -> void:
+	button.custom_minimum_size = Vector2(IMAGE_CARD_SIZE, IMAGE_CARD_SIZE)
+	button.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	button.expand_icon = true
+	button.add_theme_stylebox_override("normal", image_card_box())
+	button.add_theme_stylebox_override("hover", image_card_box(Color(1, 1, 1, 1), CARD_BORDER.lightened(0.12)))
+	button.add_theme_stylebox_override("pressed", image_card_box(Color(0.9, 0.93, 0.92, 1), CARD_BORDER.darkened(0.1)))
+	button.add_theme_stylebox_override("focus", image_card_box(Color(1, 1, 1, 0.95), CARD_BORDER))
+
+
+## Контейнер для статичной картинки: та же рамка и заливка, что у кнопки-картинки.
+static func image_card_panel() -> PanelContainer:
+	var panel := PanelContainer.new()
+	panel.custom_minimum_size = Vector2(IMAGE_CARD_SIZE, IMAGE_CARD_SIZE)
+	panel.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	panel.add_theme_stylebox_override("panel", image_card_box())
+	return panel
+
 
 static func title(label: Label) -> void:
 	label.add_theme_font_size_override("font_size", TITLE_FONT_SIZE)

@@ -16,11 +16,14 @@ var _session: SessionController
 
 
 func _ready() -> void:
+	var set_id := Navigation.selected_set_id
+	if set_id.is_empty() or not SetRepository.set_exists(set_id):
+		set_id = SetRepository.get_default_set_id()
 	var mode_id := Navigation.selected_mode
 	if not MODE_SCENES.has(mode_id):
 		mode_id = DEFAULT_MODE
 	_session = SessionController.new()
-	if not _session.start(SetRepository.get_default_set_id(), DEFAULT_MAX_ATTEMPTS, 0, mode_id):
+	if not _session.start(set_id, DEFAULT_MAX_ATTEMPTS, 0, mode_id):
 		_build_empty()
 		return
 	var scene := load(str(MODE_SCENES.get(mode_id, ""))) as PackedScene

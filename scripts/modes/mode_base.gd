@@ -135,20 +135,20 @@ func _target_side() -> String:
 
 func _add_image(path: String) -> void:
 	var texture := _load_texture(path)
+	var panel := ScreenStyle.image_card_panel()
 	var rect := TextureRect.new()
-	rect.custom_minimum_size = Vector2(240, 240)
 	rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	if texture != null:
 		rect.texture = texture
-	_image_row.add_child(rect)
+	panel.add_child(rect)
+	_image_row.add_child(panel)
 
 
 func _add_image_button(path: String, side: String) -> void:
 	var texture := _load_texture(path)
 	var button := Button.new()
-	button.custom_minimum_size = Vector2(240, 240)
-	button.expand_icon = true
+	ScreenStyle.image_card_button(button)
 	if texture != null:
 		button.icon = texture
 	button.pressed.connect(_on_answer.bind(side == _target_side()))
@@ -164,12 +164,7 @@ func _add_text_button(text: String, correct: bool) -> void:
 
 
 func _load_texture(path: String) -> Texture2D:
-	if path.is_empty() or not ResourceLoader.exists(path):
-		return null
-	var resource := load(path)
-	if resource is Texture2D:
-		return resource
-	return null
+	return SetRepository.load_texture(path)
 
 
 func _clear(node: Node) -> void:

@@ -207,14 +207,10 @@ func _next_sfx_player() -> AudioStreamPlayer:
 func _load_stream(path: String) -> AudioStream:
 	if path.is_empty():
 		return null
-	if not ResourceLoader.exists(path):
+	var stream := SetRepository.load_audio(path)
+	if stream == null:
 		AppLogger.warning("AudioManager", "audio not found: " + path)
-		return null
-	var resource := load(path)
-	if resource is AudioStream:
-		return resource
-	AppLogger.warning("AudioManager", "not an audio stream: " + path)
-	return null
+	return stream
 
 
 func _linear_to_db(linear: float) -> float:

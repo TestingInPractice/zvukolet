@@ -34,6 +34,7 @@ func _ready() -> void:
 	_run_package_tests()
 	_run_format_tests()
 	_run_scene_tests()
+	_run_media_tests()
 	_run_navigation_tests()
 	_run_audio_tests()
 	_run_sfx_tests()
@@ -73,18 +74,40 @@ func _run_content_tests() -> void:
 		if str(pair.get("word_a", "")).is_empty() or str(pair.get("word_b", "")).is_empty():
 			all_words = false
 	_check(all_words, "у каждой пары набора есть оба слова")
+	var media := ContentRepository.find_media_by_word("Мишка")
+	_check(not str(media.get("image", "")).is_empty(), "медиа слова находится по тексту без учёта регистра")
+	_check(not str(media.get("audio", "")).is_empty(), "озвучка слова находится по тексту")
+	_check(ContentRepository.find_media_by_word("нетакогослова").is_empty(), "неизвестное слово не даёт медиа")
 
 
 func _run_custom_store_tests() -> void:
-	var record := CustomSetsStore.create_set("Тест", "sh_s")
+	var record := CustomSetsStore.create_set("Тест", "sh_s", "repeat_after_adult")
 	_set_id = str(record.get("id", ""))
 	_check(not _set_id.is_empty(), "набор создан")
 	_check(CustomSetsStore.has_set(_set_id), "набор есть в хранилище")
+	_check(CustomSetsStore.get_mode_id(_set_id) == "repeat_after_adult", "режим набора сохраняется")
 	var pair := ContentRepository.get_pair("sh_s_01")
 	_check(CustomSetsStore.add_pair(_set_id, "sh_s_01", pair), "пара добавлена в набор")
 	_check(CustomSetsStore.pair_count(_set_id) == 1, "в наборе одна пара")
 	CustomSetsStore.rename_set(_set_id, "Тест 2")
 	_check(str(CustomSetsStore.get_set(_set_id).get("name", "")) == "Тест 2", "набор переименован")
+
+	var typed := CustomSetsStore.create_set("Свои слова", "sh_s", "repeat_after_adult")
+	var typed_id := str(typed.get("id", ""))
+	CustomSetsStore.set_pairs(typed_id, {
+		"p_a": {
+			"word_a": "мишка", "word_b": "миска",
+			"image_a": "", "image_b": "", "audio_a": "", "audio_b": "",
+		},
+	})
+	var resolved := SetRepository.resolve_set(typed_id)
+	_check(str(resolved.get("mode_id", "")) == "repeat_after_adult", "режим набора виден в репозитории")
+	var resolved_pairs: Array = resolved.get("pairs", [])
+	_check(resolved_pairs.size() == 1, "набор из своих слов даёт одну пару")
+	if resolved_pairs.size() == 1:
+		var resolved_pair: Dictionary = resolved_pairs[0]
+		_check(not str(resolved_pair.get("image_a", "")).is_empty(), "картинка подставлена по слову")
+		_check(not str(resolved_pair.get("audio_a", "")).is_empty(), "озвучка подставлена по слову")
 
 
 func _run_package_tests() -> void:
@@ -118,11 +141,78 @@ func _run_scene_tests() -> void:
 	var editor := editor_scene.instantiate() as SetEditor
 	add_child(editor)
 	editor.open_set(_set_id)
-	_check(editor.get_included_pair_ids().size() == 1, "редактор видит включённую пару")
+	_check(editor.get_pairs().size() == 1, "редактор видит пару набора")
+	_check(editor.get_mode_id() == "repeat_after_adult", "редактор видит режим набора")
 	editor.queue_free()
 
 
+func _run_media_tests() -> void:
+	_check(CustomSetsStore.extension_for_mime("image/png") == "png", "png даёт расширение png")
+	_check(CustomSetsStore.extension_for_mime("image/jpeg; charset=x") == "jpg", "jpeg с параметрами даёт jpg")
+	_check(CustomSetsStore.extension_for_mime("audio/wav") == "wav", "wav даёт расширение wav")
+	_check(CustomSetsStore.extension_for_mime("audio/mp4") == "m4a", "m4a даёт расширение m4a")
+	_check(CustomSetsStore.extension_for_mime("application/zip").is_empty(), "чужой тип без расширения")
+	_check(CustomSetsStore.image_file_name("p_x", "a") == "p_x_a.webp", "имя картинки всегда с .webp")
+	_check(CustomSetsStore.audio_file_name("p_x", "b", "ogg") == "p_x_b.ogg", "имя озвучки с расширением")
+
+	var png := _make_png_bytes()
+	var png_path := TEST_SETS_DIR + "/probe.png"
+	var png_file := FileAccess.open(png_path, FileAccess.WRITE)
+	png_file.store_buffer(png)
+	png_file.close()
+	SetRepository.clear_cache()
+	_check(SetRepository.load_texture(png_path) != null, "картинка из user:// читается")
+	_check(SetRepository.load_texture(png_path) == SetRepository.load_texture(png_path), "повторное чтение картинки идёт из кэша")
+
+	var wav := VoiceRecord.pcm_to_wav_bytes(_make_pcm(), 44100)
+	var wav_path := TEST_SETS_DIR + "/probe.wav"
+	var wav_file := FileAccess.open(wav_path, FileAccess.WRITE)
+	wav_file.store_buffer(wav)
+	wav_file.close()
+	SetRepository.clear_cache()
+	_check(SetRepository.load_audio(wav_path) != null, "звук из user:// читается")
+
+	var editor_scene := load("res://scenes/constructor/set_editor.tscn") as PackedScene
+	var editor := editor_scene.instantiate() as SetEditor
+	add_child(editor)
+	editor.open_set(_set_id)
+	var ids := editor.row_ids()
+	_check(ids.size() == 1, "у набора одна строка редактора")
+	if ids.size() == 1:
+		var row_id := ids[0]
+		var img_result := editor.apply_image(row_id, "a", png)
+		_check(bool(img_result.get("ok", false)), "картинка слова записана в user://")
+		var audio_result := editor.apply_audio(row_id, "a", wav, "wav")
+		_check(bool(audio_result.get("ok", false)), "озвучка слова записана в user://")
+		editor._on_save()
+		var saved_ids := CustomSetsStore.get_pair_ids(_set_id)
+		var saved := CustomSetsStore.get_pair(_set_id, saved_ids[0])
+		var image_path := str(saved.get("image_a", ""))
+		_check(image_path.begins_with("user://"), "своя картинка сохранена в паре")
+		_check(str(saved.get("audio_a", "")).begins_with("user://"), "своя озвучка сохранена в паре")
+		editor.clear_media(row_id, "a")
+		_check(not FileAccess.file_exists(image_path), "очистка удаляет файл картинки")
+	editor.queue_free()
+
+
+func _make_png_bytes() -> PackedByteArray:
+	var image := Image.create_empty(4, 4, false, Image.FORMAT_RGBA8)
+	image.fill(Color(0.9, 0.2, 0.2, 1.0))
+	return image.save_png_to_buffer()
+
+
+func _make_pcm() -> PackedByteArray:
+	var pcm := PackedByteArray()
+	pcm.resize(16)
+	return pcm
+
+
 func _run_audio_tests() -> void:
+	_check(AudioServer.get_bus_index("VoiceRecord") >= 0, "шина VoiceRecord создана из макета")
+	_check(AudioServer.get_bus_index("Voice") >= 0, "шина Voice создана")
+	_check(AudioServer.get_bus_index("SFX") >= 0, "шина SFX создана")
+	_check(AudioServer.get_bus_index("Music") >= 0, "шина Music создана")
+	_check(AudioServer.bus_count >= 5, "в макете минимум пять шин")
 	_check(AudioManager.has_method("play_voice"), "аудио-менеджер доступен")
 	_check(AudioManager.play_voice("") == false, "пустой путь голоса отклонён")
 	_check(AudioManager.play_voice("res://assets/audio/pairs/sh_s/nope.wav") == false, "отсутствующий файл голоса не ломает игру")

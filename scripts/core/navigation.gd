@@ -18,6 +18,7 @@ const ABOUT_SCREEN := "res://scenes/about_screen.tscn"
 const MODE_IDS := ["listen_choose", "repeat_after_adult", "name_picture"]
 
 var selected_mode: String = ""
+var selected_set_id: String = ""
 var last_summary: Dictionary = {}
 var _history: Array[String] = []
 
@@ -29,8 +30,16 @@ func goto(path: String) -> void:
 	navigated.emit(path)
 
 
-## Переходит на игровой экран с выбранным режимом.
+## Переходит на игровой экран с выбранным режимом и встроенным набором.
 func goto_mode(mode_id: String) -> void:
+	selected_set_id = ""
+	selected_mode = mode_id
+	goto(GAME)
+
+
+## Переходит на игровой экран с конкретным набором в его режиме.
+func play_set(set_id: String, mode_id: String) -> void:
+	selected_set_id = set_id
 	selected_mode = mode_id
 	goto(GAME)
 
@@ -49,6 +58,7 @@ func back() -> void:
 func reset_to_start() -> void:
 	_history.clear()
 	selected_mode = ""
+	selected_set_id = ""
 	get_tree().change_scene_to_file(START)
 	navigated.emit(START)
 

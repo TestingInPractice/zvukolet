@@ -13,6 +13,7 @@ signal content_loaded()
 var _contrasts: Array[Dictionary] = []
 var _pairs_by_contrast: Dictionary = {}
 var _pair_index: Dictionary = {}
+var _word_media_index: Dictionary = {}
 var _builtin_sets: Array[Dictionary] = []
 var _builtin_set_index: Dictionary = {}
 var _loaded: bool = false
@@ -27,6 +28,7 @@ func load_content() -> bool:
 	_contrasts.clear()
 	_pairs_by_contrast.clear()
 	_pair_index.clear()
+	_word_media_index.clear()
 	_builtin_sets.clear()
 	_builtin_set_index.clear()
 	_loaded = false
@@ -46,6 +48,7 @@ func load_content() -> bool:
 		_pairs_by_contrast[contrast_id] = pairs
 		for pair in pairs:
 			_pair_index[str(pair.get("id", ""))] = pair
+			_index_pair_words(pair)
 
 	_load_builtin_sets()
 
@@ -83,6 +86,31 @@ func get_pair(pair_id: String) -> Dictionary:
 	if _pair_index.has(pair_id):
 		return (_pair_index[pair_id] as Dictionary).duplicate(true)
 	return {}
+
+
+## Медиа встроенной библиотеки по слову: {image, audio}. Пусто, если слова нет.
+## Нужно конструктору: взрослый вводит слово, а картинка и озвучка берутся из
+## библиотеки, если слово там есть.
+func find_media_by_word(word: String) -> Dictionary:
+	var key := _word_key(word)
+	if key.is_empty() or not _word_media_index.has(key):
+		return {}
+	return (_word_media_index[key] as Dictionary).duplicate(true)
+
+
+func _index_pair_words(pair: Dictionary) -> void:
+	for side: String in ["a", "b"]:
+		var key := _word_key(str(pair.get("word_" + side, "")))
+		if key.is_empty() or _word_media_index.has(key):
+			continue
+		_word_media_index[key] = {
+			"image": str(pair.get("image_" + side, "")),
+			"audio": str(pair.get("audio_" + side, "")),
+		}
+
+
+func _word_key(word: String) -> String:
+	return word.strip_edges().to_lower()
 
 
 func get_builtin_sets() -> Array[Dictionary]:
